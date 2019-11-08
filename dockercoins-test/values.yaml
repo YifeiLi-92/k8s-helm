@@ -1,0 +1,23 @@
+environment: dev
+
+replicaCount: 1
+
+image:
+  repository: 127.0.0.1:30161
+  tag: v0.1
+
+nameOverride: dockercoins
+
+service:
+  type: ClusterIP
+  port: 80
+  name: worker
+  names: worker,hasher,rng,webui,redis
+
+ingress:
+  services: hasher,rng,webui
+  host: 192.168.33.101.nip.io
+
+healthCheck:
+  env: uat
+  services: hasher,rng,webui

@@ -1,0 +1,43 @@
+{{- range $serviceName := (splitList "," .Values.service.names) }}
+---
+apiVersion: apps/v1
+{{- if eq $serviceName "rng" }}
+kind: DaemonSet
+{{- else }}
+kind: Deployment
+{{- end }}
+metadata:
+  name: {{ $serviceName }}
+  labels:
+    projectName: {{ $.Values.nameOverride }}
+    environment: {{ $.Values.environment }}
+    serviceName: {{ $serviceName }}
+  namespace: {{ $.Values.environment }}
+spec:
+  replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      projectName: {{ $.Values.nameOverride }}
+      environment: {{ $.Values.environment }}
+      serviceName: {{ $serviceName }}
+  template:
+    metadata:
+      labels:
+        projectName: {{ $.Values.nameOverride }}
+        environment: {{ $.Values.environment }}
+        serviceName: {{ $serviceName }}
+    spec:
+      containers:
+        - name: {{ $serviceName }}
+          image: {{ $.Values.image.repository }}/{{ $serviceName }}:{{ $.Values.image.tag }}
+          {{- if contains $serviceName $.Values.healthCheck.services }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          {{- end }}
+{{- end }}

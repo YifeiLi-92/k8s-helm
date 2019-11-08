@@ -1,0 +1,21 @@
+{{- range $serviceName := (splitList "," .Values.service.names) }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $serviceName }}-ingress
+  labels:
+    projectName: {{ $.Values.nameOverride }}
+    environment: {{ $.Values.environment }}
+    serviceName: {{ $serviceName }}
+  namespace: {{ $.Values.environment }}
+spec:
+  rules:
+  - host: {{ $serviceName }}.{{ $.Values.ingress.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ $serviceName }}
+          servicePort: {{ $.Values.service.port }}
+{{- end }}

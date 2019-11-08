@@ -1,0 +1,26 @@
+{{- range $serviceName := (splitList "," .Values.service.names) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $serviceName }}
+  labels:
+    projectName: {{ $.Values.nameOverride }}
+    environment: {{ $.Values.environment }}
+    serviceName: {{ $serviceName }}
+  namespace: {{ $.Values.environment }}
+spec:
+{{- if eq $serviceName "webui" }}
+  type: NodePort
+{{- else }}
+  type: ClusterIP
+{{- end }}
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    projectName: {{ $.Values.nameOverride }}
+    environment: {{ $.Values.environment }}
+    serviceName: {{ $serviceName }}
+{{- end }}

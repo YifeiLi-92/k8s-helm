@@ -1,0 +1,15 @@
+{{- if contains .Values.service.name .Values.service.names -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}
+  labels:
+{{ include "dockercoins-test.labels" . | indent 4 }}
+  namespace: {{ .Values.environment }}
+spec:
+  type: {{ include "dockercoins-test.service.type" . }}
+  ports:
+{{ include "dockercoins-test.service.ports" . | indent 4 }}
+  selector:
+{{ include "dockercoins-test.labels" . | indent 4 }}
+{{- end -}}

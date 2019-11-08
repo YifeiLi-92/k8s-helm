@@ -1,0 +1,36 @@
+{{- if contains .Values.service.name .Values.service.names -}}
+apiVersion: apps/v1
+{{- if eq .Values.service.name "rng" }}
+kind: DaemonSet
+{{- else }}
+kind: Deployment
+{{- end }}
+metadata:
+  name: {{ .Values.service.name }}
+  labels:
+{{ include "dockercoins-test.labels" . | indent 4 }}
+  namespace: {{ .Values.environment }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+{{ include "dockercoins-test.labels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ include "dockercoins-test.labels" . | indent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.service.name }}
+          image: {{ include "dockercoins-test.deployment.image" . }}
+          {{ if contains .Values.environment .Values.healthCheck.env and contains .Values.service.name $.Values.healthCheck.services }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          {{- end }}
+{{- end -}}

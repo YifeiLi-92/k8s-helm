@@ -1,0 +1,18 @@
+{{- if contains .Values.service.name .Values.ingress.services -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Values.service.name }}-ingress
+  labels:
+{{ include "dockercoins-test.labels" . | indent 4 }}
+  namespace: {{ .Values.environment }}
+spec:
+  rules:
+  - host: {{ include "dockercoins-test.ingress.host" . }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ .Values.service.name }}
+          servicePort: {{ .Values.service.port }}
+{{- end -}}
